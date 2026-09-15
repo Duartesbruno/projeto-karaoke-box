@@ -3,6 +3,8 @@ import { readExcel } from "./utils/excelReader";
 import { normalizeText } from "./utils/normalizeText";
 import MusicTable from "./components/MusicTable";
 import SearchBar from "./components/SearchBar";
+import Modal from "./components/Modal"
+import FiltersMenu from "./components/FiltersMenu"
 import Pagination from "./components/Pagination";
 
 import logoVideoke from "./assets/logo-ivideoke.png";
@@ -10,18 +12,23 @@ import logoPM from "./assets/pm-logo.png";
 import logoWhatsApp from "./assets/logo-whatsapp.png"
 import logoInstagram from "./assets/logo-instagram.png"
 import logoFacebook from "./assets/logo-facebook.png"
+import filterIcon from "./assets/filter-icon.png"
+import WhitecloseIcon from "./assets/white-close-icon.png"
+
 
 function App() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [selectedFilters, setSelectedFilters] = useState([]);
+  const [openFiltersModal, setOpenFiltersModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
   const itemsPerPage = 15;
 
 
   async function loadData() {
-    const result = await readExcel("data/videoke-musicasV2.xls");
+    const result = await readExcel("data/videoke-musicasV2-generos-revisados.xlsx");
     setData(result);
     setLoading(false);
   }
@@ -35,13 +42,35 @@ function App() {
   const filteredData = useMemo(() => {
     const normalizedSearch = normalizeText(search);
 
-    if (!normalizedSearch) return data;
-
     return data.filter((row) => {
       const rowText = Object.values(row).join(" ");
-      return normalizeText(rowText).includes(normalizedSearch);
+      const matchesSearch = normalizeText(rowText).includes(normalizedSearch);
+      const matchesFilterGroup = (type) => {
+        const group = selectedFilters.filter((filter) => filter.type === type);
+        if (!group.length) return true;
+
+        const field = Object.keys(row).find((key) =>
+          normalizeText(key) === (type === "genre" ? "genero" : "idioma")
+        );
+
+        if (!field) return false;
+
+        const rowValues = new Set(
+          normalizeText(row[field])
+            .replace(/[-,/;|]/g, "|")
+            .split("|")
+            .map((value) => value.trim())
+            .filter(Boolean)
+        );
+
+        return group.some((filter) => rowValues.has(normalizeText(filter.value)));
+      };
+
+      const matchesFilters = matchesFilterGroup("genre") && matchesFilterGroup("language");
+
+      return matchesSearch && matchesFilters;
     });
-  }, [search, data]);
+  }, [search, data, selectedFilters]);
 
   useEffect(() => {
   window.scrollTo({
@@ -65,6 +94,18 @@ function App() {
     setCurrentPage(1);
   };
 
+  // remove filtros da tela
+  const removeFilter = (filterToRemove) => {
+    setSelectedFilters((filters) => filters.filter((filter) =>
+      filter.type !== filterToRemove.type || filter.value !== filterToRemove.value
+    ));
+    setCurrentPage(1);
+  };
+
+  const hasActiveFilters = search || selectedFilters.length > 0;
+  const resultLabel = filteredData.length === 1 ? "música encontrada" : "músicas encontradas";
+  const availableLabel = filteredData.length === 1 ? "música disponível" : "músicas disponíveis";
+
   const hasPagination = totalPages > 1;
 
   return (
@@ -73,13 +114,32 @@ function App() {
         <img src={logoVideoke} alt="Logo Videoke" className="logo" />
         <h1>Lista de Músicas</h1>
         <p className="total">
-          🎵 {search
-            ? `${filteredData.length} música${filteredData.length === 1 ? "" : "s"} encontrada${filteredData.length === 1 ? "" : "s"}`
-            : `${data.length} músicas disponíveis`}
+          🎵 {hasActiveFilters
+            ? `${filteredData.length} ${resultLabel}`
+            : `${filteredData.length} ${availableLabel}`}
         </p>
       </div>
       <div className="results-container">
-        <SearchBar value={search} onChange={handleSearch} />
+        <div className="filter-container">
+            <SearchBar value={search} onChange={handleSearch} />
+            <button className="button-filter" onClick={() => setOpenFiltersModal(true)}>
+              <img src={filterIcon} alt=""/>
+              <span>Filtrar</span>
+            </button>
+        </div>
+        <div className="selected-filters">
+            {selectedFilters.map((filter) => (
+              <button
+                type="button"
+                className="selected-filter"
+                key={`${filter.type}-${filter.value}`}
+                onClick={() => removeFilter(filter)}
+                aria-label={`Remover filtro ${filter.label}`}
+              >
+                {filter.label} <span aria-hidden="true"><img src={WhitecloseIcon} alt=""/></span>
+              </button>
+            ))}
+        </div>
         {paginatedData.length > 0 && (
           <p className="scroll-hint">⬇️ Deslize para ver mais ➡️</p>
         )}
@@ -113,6 +173,16 @@ function App() {
           © {new Date().getFullYear()} PRO Multimídia • Desenvolvido por Bruno Duarte
         </small>
       </div>
+      <Modal isOpen={openFiltersModal} onClose={() => setOpenFiltersModal(false)}>
+        <FiltersMenu
+          selectedFilters={selectedFilters}
+          onApply={(filters) => {
+            setSelectedFilters(filters);
+            setCurrentPage(1);
+          }}
+          onClose={() => setOpenFiltersModal(false)}
+        />
+      </Modal>
     </div>
   );
 }
