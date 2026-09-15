@@ -7,7 +7,7 @@ import Modal from "./components/Modal"
 import FiltersMenu from "./components/FiltersMenu"
 import Pagination from "./components/Pagination";
 
-import logoVideoke from "./assets/logo-ivideoke.png";
+import logoKaraokeBox from "./assets/logo-karaoke-box.png";
 import logoPM from "./assets/pm-logo.png";
 import logoWhatsApp from "./assets/logo-whatsapp.png"
 import logoInstagram from "./assets/logo-instagram.png"
@@ -28,7 +28,7 @@ function App() {
 
 
   async function loadData() {
-    const result = await readExcel("data/videoke-musicasV2-generos-revisados.xlsx");
+    const result = await readExcel("data/catalogo_karaokebox_revisado.xlsx");
     setData(result);
     setLoading(false);
   }
@@ -111,7 +111,7 @@ function App() {
   return (
     <div className="container">
       <div className="header">
-        <img src={logoVideoke} alt="Logo Videoke" className="logo" />
+        <img src={logoKaraokeBox} alt="Logo Videoke" className="logo" />
         <h1>Lista de Músicas</h1>
         <p className="total">
           🎵 {hasActiveFilters

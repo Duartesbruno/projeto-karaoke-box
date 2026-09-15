@@ -29,8 +29,8 @@ const languageOptions = [
     ["BRA", "Português"],
     ["ESP", "Espanhol"],
     ["EUA", "Inglês"],
-    ["FRA", "Francês"],
     ["ITA", "Italiano"],
+    ["JPN", "Japonês"],
 ];
 
 export default function FiltersMenu({ selectedFilters = [], onApply, onClose }) {

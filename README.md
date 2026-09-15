@@ -1,10 +1,10 @@
 <h1>
-    Lista de Músicas - iVideokê
+    Lista de Músicas - Karaokê Box
 </h1>
-<img src="src/assets/screenshot.png"/>
+<img src="src/assets/screenshotv2.png"/>
 
 ## 📕 About
 List of songs for karaoke.
 
 ## 💻Test the project
-[Lista de Músicas - vercel](https://projeto-videoke.vercel.app/)
+[Lista de Músicas - vercel](https://projeto-karaoke-box.vercel.app/)
