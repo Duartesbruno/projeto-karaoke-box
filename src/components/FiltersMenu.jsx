@@ -23,6 +23,7 @@ const genreOptions = [
     ["rock", "Rock"],
     ["samba", "Samba"],
     ["sertanejo", "Sertanejo"],
+    ["trap", "Trap"]
 ];
 
 const languageOptions = [
@@ -31,6 +32,7 @@ const languageOptions = [
     ["EUA", "Inglês"],
     ["ITA", "Italiano"],
     ["JPN", "Japonês"],
+    ["COR", "Coreano"],
 ];
 
 export default function FiltersMenu({ selectedFilters = [], onApply, onClose }) {

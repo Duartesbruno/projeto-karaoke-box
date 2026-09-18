@@ -28,7 +28,7 @@ function App() {
 
 
   async function loadData() {
-    const result = await readExcel("data/catalogo_karaokebox_revisado.xlsx");
+    const result = await readExcel("data/catalogo_karaokebox_v2.xlsx");
     setData(result);
     setLoading(false);
   }
